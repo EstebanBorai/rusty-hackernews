@@ -19,7 +19,7 @@ impl HackerNewsService {
                     serde_json::from_str(&res.text().await.unwrap()).unwrap();
                 let mut stories: Vec<Story> = Vec::new();
 
-                for story_id in stories_ids.iter().take(5) {
+                for story_id in stories_ids.iter().take(25) {
                     let story = self.find_story(*story_id).await?;
 
                     stories.push(story);

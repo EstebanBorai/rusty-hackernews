@@ -1,8 +1,13 @@
 use actix_web::web::{get, scope, ServiceConfig};
 
 mod api;
+mod index;
 
 pub fn bind_routes(app: &mut ServiceConfig) {
+    // Views
+    app.route("/", get().to(index::index));
+
+    // API
     app.service(
         scope("/api").service(
             scope("/v1").service(

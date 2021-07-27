@@ -1,0 +1,8 @@
+{{#*inline "page"}}
+  <ul>
+    {{#each stories}}
+      <li>{{title}}</li>
+    {{/each}}
+  </ul>
+{{/inline}}
+{{> (lookup this "parent")}}
