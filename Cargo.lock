@@ -479,6 +479,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fluxcap"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "handlebars",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -627,18 +639,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "hnyc"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "handlebars",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]
