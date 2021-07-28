@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 actix-web = "4.0.0-beta.8"
+futures = "0.3.16"
 handlebars = { version = "4.1.0", features = ["dir_source"] }
 reqwest = "0.11.4"
 serde = "1.0.126"

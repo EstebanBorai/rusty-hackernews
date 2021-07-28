@@ -7,6 +7,8 @@ use crate::AppData;
 pub async fn index(app_data: Data<AppData>) -> HttpResponse {
     let stories = app_data
         .hacker_news_service
+        .lock()
+        .unwrap()
         .find_new_stories()
         .await
         .unwrap();
