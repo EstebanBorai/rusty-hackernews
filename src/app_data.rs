@@ -1,6 +1,6 @@
 use actix_web::web::Data;
 use handlebars::Handlebars;
-use sass_rs::compile_file;
+use sass_rs::{compile_file, compile_string};
 use std::sync::{Arc, Mutex};
 
 use crate::services::hacker_news::HackerNewsService;
@@ -35,9 +35,6 @@ impl AppData {
     }
 
     pub fn compile_styles() -> String {
-        let main_scss_file_path = "src/styles/app.scss";
-
-        compile_file(main_scss_file_path, sass_rs::Options::default())
-            .expect("Failed to compile SASS")
+        compile_file("styles/app.scss", sass_rs::Options::default()).unwrap()
     }
 }
