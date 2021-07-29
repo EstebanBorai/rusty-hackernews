@@ -10,6 +10,7 @@ actix-web = "4.0.0-beta.8"
 futures = "0.3.16"
 handlebars = { version = "4.1.0", features = ["dir_source"] }
 reqwest = "0.11.4"
+sass-rs = "0.2.2"
 serde = "1.0.126"
 serde_json = "1.0.64"
 thiserror = "1.0.26"
