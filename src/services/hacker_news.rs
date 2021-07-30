@@ -24,7 +24,6 @@ impl HackerNewsService {
 
     pub async fn find_new_stories(&mut self) -> Result<Vec<Story>> {
         let newstories_ids = self.find_newstories_ids().await?;
-        let page = HackerNewsService::calc_page(self.total_newstories, PAGE_SIZE);
         let stories = join_all(
             newstories_ids
                 .into_iter()

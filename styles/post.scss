@@ -1,0 +1,31 @@
+#post-stream {
+  margin: 0;
+  max-width: 640px;
+  padding: 0;
+
+  @media (max-width: 780px) {
+    max-width: unset;
+    margin: 0 auto;
+    width: 95%;
+  }
+}
+
+.post {
+  background-color: #FFFFFF;
+  border-radius: .25rem;
+  list-style-type: none;
+  margin-bottom: 1.25rem;
+  padding: .5rem 0;
+
+  header {
+    padding: 0 .5rem;
+  }
+
+  main {
+    padding: .5rem;
+  }
+
+  footer {
+    padding: 0 .5rem;
+  }
+}

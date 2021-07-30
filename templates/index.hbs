@@ -1,7 +1,18 @@
 {{#*inline "page"}}
-  <ul>
+  <ul id="post-stream">
     {{#each stories}}
-      <li>{{title}}</li>
+      <li class="post">
+        <header>
+          <strong>username</strong> | <span>18 hours ago</span>
+        </header>
+        <main>
+          {{title}}
+        </main>
+        <footer>
+          <span>513 points</span>
+          <span>185 comments</span>
+        </footer>
+      </li>
     {{/each}}
   </ul>
 {{/inline}}

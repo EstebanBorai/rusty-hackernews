@@ -1,3 +1,18 @@
+@import './header.scss';
+@import './post.scss';
+
 body {
-  font-family: sans-serif;
+  background-color: #eceff3;
+  margin: 0;
+
+  * {
+    font-family: 'Hind Siliguri', sans-serif;
+    box-sizing: border-box;
+  }
+}
+
+#app-main {
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
