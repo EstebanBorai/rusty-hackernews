@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Story {
-    id: u64,
-    r#type: String,
-    by: String,
-    descendants: u32,
-    kids: Option<Vec<u64>>,
-    score: u32,
-    time: u64,
-    title: String,
-    url: Option<String>,
+    pub id: u64,
+    pub r#type: String,
+    pub by: String,
+    pub descendants: u32,
+    pub kids: Option<Vec<u64>>,
+    pub score: u32,
+    pub time: u64,
+    pub title: String,
+    pub url: Option<String>,
 }

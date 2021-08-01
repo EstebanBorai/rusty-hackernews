@@ -1,19 +1,35 @@
 {{#*inline "page"}}
-  <ul id="post-stream">
-    {{#each stories}}
-      <li class="post">
-        <header>
-          <strong>username</strong> | <span>18 hours ago</span>
-        </header>
-        <main>
-          {{title}}
-        </main>
-        <footer>
-          <span>513 points</span>
-          <span>185 comments</span>
-        </footer>
-      </li>
-    {{/each}}
-  </ul>
+<ul id="post-stream">
+  {{#each stories}}
+  <li class="post">
+    <header>
+      <strong>{{story.by}}</strong> | <span>18 hours ago</span>
+    </header>
+    <main>
+      <h2>{{story.title}}</h2>
+      <div>
+        {{#if link_image_url}}
+        <article class="link-preview">
+          {{#if link_title}}
+          <strong>{{link_title}}</strong>
+          {{/if}}
+          <figure>
+            <img src={{link_image_url}} />
+          </figure>
+          {{#if link_description}}
+          <p>{{link_description}}</p>
+          {{/if}}
+        </article>
+        {{/if}}
+      </div>
+    </main>
+    <footer>
+      <span>513 points</span>
+      <span>185 comments</span>
+      <a href={{story.url}} target="_blank">Read More</a>
+    </footer>
+  </li>
+  {{/each}}
+</ul>
 {{/inline}}
 {{> (lookup this "parent")}}

@@ -27,7 +27,6 @@ impl HackerNewsService {
         let stories = join_all(
             newstories_ids
                 .into_iter()
-                .skip(50)
                 .take(PAGE_SIZE)
                 .map(|id| self.find_story(id)),
         )

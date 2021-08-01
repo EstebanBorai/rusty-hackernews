@@ -29,3 +29,41 @@
     padding: 0 .5rem;
   }
 }
+
+.link-preview {
+  align-items: center;
+  background-color: #323232;
+  border-radius: .5rem;
+  box-sizing: border-box;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  max-width: 640px;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  strong {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  figure {
+    margin: 0 auto;
+    width: 90%;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  p {
+    text-align: left;
+    width: 100%;
+  }
+}
