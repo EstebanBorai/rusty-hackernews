@@ -1,34 +1,38 @@
 use futures::future::join_all;
+use link_preview::LinkPreview;
 use reqwest::get;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use crate::error::{Error, Result};
 use crate::models::hacker_news::Story;
 
-const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
+use super::link_preview::LinkPreviewService;
 
-/// Stories endpoints will gather around 500 posts which are too many per page
-/// to reduce the amount of requests the endpoint will paginante for this size
-/// of posts
-const PAGE_SIZE: usize = 50;
+const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
 
 pub struct HackerNewsService {
     total_newstories: usize,
+    page_size: usize,
+    link_preview_service: Arc<Mutex<LinkPreviewService>>,
 }
 
 impl HackerNewsService {
-    pub fn new() -> Self {
+    pub fn new(link_preview_service: Arc<Mutex<LinkPreviewService>>, page_size: usize) -> Self {
         HackerNewsService {
             total_newstories: 0,
+            page_size,
+            link_preview_service,
         }
     }
 
-    pub async fn find_new_stories(&mut self) -> Result<Vec<Story>> {
+    pub async fn find_new_stories(&mut self) -> Result<Vec<(Story, Option<LinkPreview>)>> {
         let newstories_ids = self.find_newstories_ids().await?;
         let stories = join_all(
             newstories_ids
                 .into_iter()
-                .take(PAGE_SIZE)
-                .map(|id| self.find_story(id)),
+                .take(self.page_size)
+                .map(|id| self.find_story_with_preview(id)),
         )
         .await
         .into_iter()
@@ -45,6 +49,23 @@ impl HackerNewsService {
         }
     }
 
+    pub async fn find_story_with_preview(&self, id: u64) -> Result<(Story, Option<LinkPreview>)> {
+        let story = self.find_story(id).await?;
+
+        if let Some(url) = story.clone().url {
+            let preview = self
+                .link_preview_service
+                .lock()
+                .await
+                .preview_from_url(url.as_str())
+                .await;
+
+            return Ok((story, preview));
+        }
+
+        Ok((story, None))
+    }
+
     async fn find_newstories_ids(&mut self) -> Result<Vec<u64>> {
         match get(format!("{}/newstories.json", BASE_URL)).await {
             Ok(res) => {
@@ -57,8 +78,4 @@ impl HackerNewsService {
             Err(err) => Err(Error::from(err)),
         }
     }
-
-    // fn calc_page(total_items: usize, limit: usize) -> u32 {
-    //     f32::ceil(total_items as f32 / limit as f32) as u32
-    // }
 }

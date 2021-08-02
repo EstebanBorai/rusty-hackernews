@@ -23,11 +23,12 @@
   }
 
   main {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
 
     h2 {
       font-family: 'Georama', sans-serif;
+      margin: 0;
     }
   }
 
@@ -35,6 +36,7 @@
     align-items: center;
     display: flex;
     justify-content: flex-start;
+    margin-top: 1.5rem;
 
     span, strong {
       align-items: center;
@@ -50,7 +52,7 @@
   }
 }
 
-.user, .score, .time {
+.user, .score, .time, .comments {
   margin-right: 1rem;
 }
 
