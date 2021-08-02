@@ -9,7 +9,7 @@ const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
 /// Stories endpoints will gather around 500 posts which are too many per page
 /// to reduce the amount of requests the endpoint will paginante for this size
 /// of posts
-const PAGE_SIZE: usize = 30;
+const PAGE_SIZE: usize = 50;
 
 pub struct HackerNewsService {
     total_newstories: usize,
@@ -58,7 +58,7 @@ impl HackerNewsService {
         }
     }
 
-    fn calc_page(total_items: usize, limit: usize) -> u32 {
-        f32::ceil(total_items as f32 / limit as f32) as u32
-    }
+    // fn calc_page(total_items: usize, limit: usize) -> u32 {
+    //     f32::ceil(total_items as f32 / limit as f32) as u32
+    // }
 }

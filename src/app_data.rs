@@ -1,6 +1,6 @@
 use actix_web::web::Data;
 use handlebars::Handlebars;
-use sass_rs::{compile_file, compile_string};
+use sass_rs::compile_file;
 use std::sync::{Arc, Mutex};
 
 use crate::services::hacker_news::HackerNewsService;

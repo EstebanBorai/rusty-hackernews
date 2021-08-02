@@ -1,4 +1,3 @@
-use actix_web::http::header::HttpDate;
 use actix_web::web::{Data, Path};
 use actix_web::HttpResponse;
 
