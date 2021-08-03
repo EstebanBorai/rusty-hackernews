@@ -14,6 +14,7 @@ const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
 pub struct HackerNewsService {
     total_newstories: usize,
     page_size: usize,
+    #[allow(dead_code)]
     link_preview_service: Arc<Mutex<LinkPreviewService>>,
 }
 
@@ -26,13 +27,13 @@ impl HackerNewsService {
         }
     }
 
-    pub async fn find_new_stories(&mut self) -> Result<Vec<(Story, Option<LinkPreview>)>> {
+    pub async fn find_new_stories(&mut self) -> Result<Vec<Story>> {
         let newstories_ids = self.find_newstories_ids().await?;
         let stories = join_all(
             newstories_ids
                 .into_iter()
                 .take(self.page_size)
-                .map(|id| self.find_story_with_preview(id)),
+                .map(|id| self.find_story(id)),
         )
         .await
         .into_iter()

@@ -10,6 +10,16 @@
 
 ## Development
 
+### Client
+
+1. Install `trunk` following the [official documentation](https://trunkrs.dev/#install).
+
+2. Install de Rust target for WASM using `rustup target add wasm32-unknown-unknown`
+
+3. `cd` into the `client` directory and run `trunk serve`
+
+### Server
+
 1. Install `cargo watch`, even if its not required is conveninent to
 have the project built on every file change in the project
 

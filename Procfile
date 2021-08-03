@@ -1,1 +1,1 @@
-web: ./target/release/fluxcap
+web: ./target/release/server

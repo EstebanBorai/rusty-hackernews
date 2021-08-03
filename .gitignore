@@ -142,6 +142,8 @@ bundle
 # Added by cargo
 
 /target
+client/target
+server/target
 
 # Development #
 ###############
