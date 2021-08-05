@@ -1,14 +1,22 @@
-use actix_web::web::{Data, Path};
+use actix_web::web::{Data, HttpRequest, Path, Query};
 use actix_web::HttpResponse;
+use serde::Deserialize;
 
 use crate::AppData;
 
-pub async fn list_new_stories(app_data: Data<AppData>) -> HttpResponse {
+#[derive(Debug, Deserialize)]
+pub struct ListStoriesParams {
+    page: Option<usize>,
+}
+
+pub async fn list_new_stories(app_data: Data<AppData>, req: HttpRequest) -> HttpResponse {
+    let params = Query::<ListStoriesParams>::from_query(req.query_string()).unwrap();
+
     match app_data
         .hacker_news_service
         .lock()
         .await
-        .find_new_stories()
+        .find_new_stories(params.page)
         .await
     {
         Ok(story) => HttpResponse::Ok().json(story),

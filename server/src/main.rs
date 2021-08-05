@@ -1,6 +1,6 @@
 mod app_data;
 mod error;
-mod models;
+mod middleware;
 mod routes;
 mod services;
 
@@ -14,7 +14,10 @@ async fn main() -> std::io::Result<()> {
     let data = AppData::new().await;
 
     HttpServer::new(move || {
+        let cors = middleware::cors::make_cors_middleware();
+
         App::new()
+            .wrap(cors)
             .app_data(data.clone())
             .configure(routes::bind_routes)
     })

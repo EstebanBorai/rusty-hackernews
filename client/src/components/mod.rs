@@ -1,3 +1,3 @@
 pub mod header;
-pub mod post;
+pub mod story;
 pub mod stream;

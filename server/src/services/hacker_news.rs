@@ -1,38 +1,31 @@
+use common::Story;
 use futures::future::join_all;
-use link_preview::LinkPreview;
 use reqwest::get;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 use crate::error::{Error, Result};
-use crate::models::hacker_news::Story;
-
-use super::link_preview::LinkPreviewService;
 
 const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
+const PAGE_SIZE: usize = 20;
 
 pub struct HackerNewsService {
     total_newstories: usize,
-    page_size: usize,
-    #[allow(dead_code)]
-    link_preview_service: Arc<Mutex<LinkPreviewService>>,
 }
 
 impl HackerNewsService {
-    pub fn new(link_preview_service: Arc<Mutex<LinkPreviewService>>, page_size: usize) -> Self {
+    pub fn new() -> Self {
         HackerNewsService {
             total_newstories: 0,
-            page_size,
-            link_preview_service,
         }
     }
 
-    pub async fn find_new_stories(&mut self) -> Result<Vec<Story>> {
+    pub async fn find_new_stories(&mut self, page: Option<usize>) -> Result<Vec<Story>> {
+        let skip_pages = page.unwrap_or(0);
         let newstories_ids = self.find_newstories_ids().await?;
         let stories = join_all(
             newstories_ids
                 .into_iter()
-                .take(self.page_size)
+                .skip(skip_pages * PAGE_SIZE)
+                .take(PAGE_SIZE)
                 .map(|id| self.find_story(id)),
         )
         .await
@@ -48,23 +41,6 @@ impl HackerNewsService {
             Ok(res) => Ok(serde_json::from_str::<Story>(&res.text().await.unwrap()).unwrap()),
             Err(err) => Err(Error::from(err)),
         }
-    }
-
-    pub async fn find_story_with_preview(&self, id: u64) -> Result<(Story, Option<LinkPreview>)> {
-        let story = self.find_story(id).await?;
-
-        if let Some(url) = story.clone().url {
-            let preview = self
-                .link_preview_service
-                .lock()
-                .await
-                .preview_from_url(url.as_str())
-                .await;
-
-            return Ok((story, preview));
-        }
-
-        Ok((story, None))
     }
 
     async fn find_newstories_ids(&mut self) -> Result<Vec<u64>> {
