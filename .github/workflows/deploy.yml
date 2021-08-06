@@ -27,8 +27,8 @@ jobs:
       - name: Install Trunk
         run: wget -qO- https://github.com/thedodd/trunk/releases/download/v0.12.1/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
 
-      - name: Build
-        run: ./trunk build ./client/index.html
+      - name: Build client
+        run: ./trunk build --release ./client/index.html
 
       - name: Move bundle to root
         run: mv ./client/dist ./static
