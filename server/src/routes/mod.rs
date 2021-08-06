@@ -16,5 +16,9 @@ pub fn bind_routes(app: &mut ServiceConfig) {
     );
 
     // File Serving
-    app.service(Files::new("/", "./static").index_file("index.html"));
+    if cfg!(debug_assertions) {
+        app.service(Files::new("/", "./dist").index_file("index.html"));
+    } else {
+        app.service(Files::new("/", "./static").index_file("index.html"));
+    }
 }

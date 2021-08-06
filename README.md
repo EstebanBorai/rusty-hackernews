@@ -23,7 +23,7 @@
 1. Install `cargo watch`, even if its not required is conveninent to
 have the project built on every file change in the project
 
-2. Run `cargo watch -x run`
+2. Run `cargo watch -x "run --package server"`
 
 3. The website is available at http://0.0.0.0:3000
 
