@@ -2,8 +2,9 @@ use anyhow::Error;
 use common::Story;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
-use yew::services::fetch::{FetchTask, Request, Response};
+use yew::services::fetch::{FetchOptions, FetchTask, Request, Response};
 use yew::services::FetchService;
+use yew::web_sys::RequestMode;
 
 use crate::components::story::Story as StoryComponent;
 
@@ -101,7 +102,11 @@ impl Component for Stream {
                             }
                         });
 
-                let task = FetchService::fetch(request, callback).unwrap();
+                let mut options = FetchOptions::default();
+
+                options.mode = Some(RequestMode::Cors);
+
+                let task = FetchService::fetch_with_options(request, options, callback).unwrap();
 
                 self.fetch_task = Some(task);
             }
