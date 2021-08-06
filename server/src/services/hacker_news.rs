@@ -7,52 +7,66 @@ use crate::error::{Error, Result};
 const BASE_URL: &str = "https://hacker-news.firebaseio.com/v0";
 const PAGE_SIZE: usize = 20;
 
-pub struct HackerNewsService {
-    total_newstories: usize,
-}
+pub struct HackerNewsService;
 
 impl HackerNewsService {
     pub fn new() -> Self {
-        HackerNewsService {
-            total_newstories: 0,
-        }
+        HackerNewsService
     }
 
     pub async fn find_new_stories(&mut self, page: Option<usize>) -> Result<Vec<Story>> {
-        let skip_pages = page.unwrap_or(0);
-        let newstories_ids = self.find_newstories_ids().await?;
-        let stories = join_all(
-            newstories_ids
-                .into_iter()
-                .skip(skip_pages * PAGE_SIZE)
-                .take(PAGE_SIZE)
-                .map(|id| self.find_story(id)),
-        )
-        .await
-        .into_iter()
-        .map(|story_result| story_result.unwrap())
-        .collect();
+        let newstories_ids = self.find_newstories_ids(page).await?;
+        let find_story_futures = newstories_ids.iter().map(|id| self.find_story(id));
+        let stories = join_all(find_story_futures).await;
+        let stories: Vec<Story> = stories.into_iter().map(|story| story.unwrap()).collect();
 
         Ok(stories)
     }
 
-    pub async fn find_story(&self, id: u64) -> Result<Story> {
-        match get(format!("{}/item/{}.json", BASE_URL, id)).await {
-            Ok(res) => Ok(serde_json::from_str::<Story>(&res.text().await.unwrap()).unwrap()),
+    pub async fn find_story(&self, id: &u64) -> Result<Story> {
+        match get(HackerNewsService::uri(&format!("/item/{}.json", id))).await {
+            Ok(res) => {
+                let text = &res.text().await.map_err(Error::from)?;
+                let story = serde_json::from_str::<Story>(&text).map_err(Error::from)?;
+
+                Ok(story)
+            }
             Err(err) => Err(Error::from(err)),
         }
     }
 
-    async fn find_newstories_ids(&mut self) -> Result<Vec<u64>> {
-        match get(format!("{}/newstories.json", BASE_URL)).await {
+    #[allow(dead_code)]
+    async fn find_max_item_id(&self) -> Result<u64> {
+        match get(HackerNewsService::uri("/maxitem.json")).await {
             Ok(res) => {
-                let stories_ids: Vec<u64> =
-                    serde_json::from_str(&res.text().await.unwrap()).unwrap();
-                self.total_newstories = stories_ids.len();
+                let text = &res.text().await.map_err(Error::from)?;
+                let maxitem_id = serde_json::from_str::<u64>(&text).map_err(Error::from)?;
 
-                Ok(stories_ids)
+                Ok(maxitem_id)
             }
             Err(err) => Err(Error::from(err)),
         }
+    }
+
+    async fn find_newstories_ids(&self, page: Option<usize>) -> Result<Vec<u64>> {
+        let offset = page.unwrap_or(1) * PAGE_SIZE;
+
+        match get(HackerNewsService::uri("/newstories.json")).await {
+            Ok(res) => {
+                let text = &res.text().await.map_err(Error::from)?;
+                let ids = serde_json::from_str::<Vec<u64>>(&text).map_err(Error::from)?;
+                let ids = ids.into_iter().skip(offset).take(PAGE_SIZE).collect();
+
+                Ok(ids)
+            }
+            Err(err) => Err(Error::from(err)),
+        }
+    }
+
+    fn uri(path: &str) -> String {
+        let mut url = BASE_URL.to_string();
+
+        url.push_str(path);
+        url
     }
 }

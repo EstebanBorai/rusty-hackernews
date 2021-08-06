@@ -48,3 +48,15 @@ impl From<reqwest::Error> for Error {
         )
     }
 }
+
+impl From<serde_json::Error> for Error {
+    fn from(err: serde_json::Error) -> Self {
+        println!("{}", err);
+
+        Error::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "An error ocurred fetching the resource",
+            None,
+        )
+    }
+}

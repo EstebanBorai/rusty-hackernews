@@ -29,7 +29,7 @@ pub async fn find_one(app_data: Data<AppData>, id: Path<u64>) -> HttpResponse {
         .hacker_news_service
         .lock()
         .await
-        .find_story(id.into_inner())
+        .find_story(&id.into_inner())
         .await
     {
         Ok(story) => HttpResponse::Ok().json(story),

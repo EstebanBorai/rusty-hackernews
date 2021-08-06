@@ -32,21 +32,24 @@ impl Stream {
     fn render_story(story: Story) -> Html {
         let Story {
             title,
-            by: _,
+            by,
             descendants: _,
             id: _,
             kids: _,
-            score: _,
+            score,
             time: _,
             r#type: _,
-            url: _,
+            url,
         } = story;
         let image_url: Option<String> = None;
 
         html! {
             <StoryComponent
-                title= title
-                image_url = image_url
+                by=by
+                title=title
+                image_url=image_url
+                score=score
+                url=url
             />
         }
     }
