@@ -1,4 +1,26 @@
 .story {
+  margin-bottom: 1.5rem;
+
+  main {
+    align-items: flex-start;
+    box-sizing: border-box;
+    display: flex;
+    padding: 1rem 0;
+
+    figure {
+      display: inline-block;
+      margin: 0;
+      margin-right: 1rem;
+      width: 150px;
+    }
+
+    article {
+      h2 {
+        margin: 0;
+      }
+    }
+  }
+
   footer {
     * {
       font-family: 'Inter', sans-serif;
@@ -8,6 +30,12 @@
     display: grid;
     grid-template-columns: 60px 200px auto;
   }
+}
+
+.empty-description-label {
+  color: #848484;
+  font-size: .8rem;
+  text-transform: uppercase;
 }
 
 .story-title {
@@ -20,9 +48,10 @@
   justify-content: flex-start;
   margin-right: 1rem;
 
-  &:last-child {
-    margin-right: none;
-  }
+  &.read-more-button {
+    text-align: right;
+    margin-right: 0;
+  }  
 
   figure {
     display: inline-block;

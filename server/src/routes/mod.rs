@@ -7,11 +7,13 @@ pub fn bind_routes(app: &mut ServiceConfig) {
     // API
     app.service(
         scope("/api").service(
-            scope("/v1").service(
-                scope("/stories")
-                    .route("", get().to(api::v1::stories::list_new_stories))
-                    .route("/{id}", get().to(api::v1::stories::find_one)),
-            ),
+            scope("/v1")
+                .service(
+                    scope("/stories")
+                        .route("", get().to(api::v1::stories::list_new_stories))
+                        .route("/{id}", get().to(api::v1::stories::find_one)),
+                )
+                .service(scope("/previews").route("", get().to(api::v1::previews::fetch_preview))),
         ),
     );
 

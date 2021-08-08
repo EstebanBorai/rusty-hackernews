@@ -15,7 +15,7 @@ pub struct Story {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LinkPreview {
-    title: Option<String>,
-    image_url: Option<String>,
-    description: Option<String>,
+    pub title: Option<String>,
+    pub image_url: Option<String>,
+    pub description: Option<String>,
 }
