@@ -1,22 +1,41 @@
 .story {
+  display: flex;
+  border-bottom: 1px solid #f1f1f1;
+  flex-direction: column;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  min-height: 270px;
+
+  @media (max-width: 500px) {
+    min-height: 325px;
+  }
 
   main {
     align-items: flex-start;
     box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     padding: 1rem 0;
 
-    figure {
-      display: inline-block;
-      margin: 0;
-      margin-right: 1rem;
-      width: 150px;
-    }
-
     article {
+      display: flex;
+
       h2 {
+        font-family: 'Brygada 1918', serif;
         margin: 0;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        text-align: left;
+        margin: 0;
+
+        figure {
+          float: left;
+          margin: 0 1rem 1rem 0;
+          width: 150px;
+        }
       }
     }
   }
@@ -27,8 +46,9 @@
       font-size: .9rem;
     }
 
-    display: grid;
-    grid-template-columns: 60px 200px auto;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
   }
 }
 
@@ -40,6 +60,27 @@
 
 .story-title {
   font-family: 'DM Serif Display', serif;
+}
+
+.action-button {
+  color: #313131;
+  border: 1px solid #313131;
+  border-radius: .5rem;
+  box-sizing: border-box;
+  display: flex;
+  padding: .5rem;
+  text-decoration: none;
+  width: 116px;
+
+  &:hover, &:focus, &:active {
+    background-color: #313131;
+    color: #FFFFFF;
+  }
+}
+
+.story-meta {
+  align-items: center;
+  display: flex;
 }
 
 .story-field {

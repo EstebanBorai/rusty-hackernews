@@ -43,7 +43,15 @@ impl Story {
     fn render_read_more(&self) -> Html {
         if let Some(url) = self.props.url.clone() {
             return html! {
-              <a href={url} class="story-field read-more-button">{"Read More"}</a>
+                <a href={url} class="story-field read-more-button action-button" target="_blank">
+                    <figure>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                        </svg>
+                    </figure>
+                    {"Read More"}
+                </a>
             };
         }
 
@@ -91,6 +99,15 @@ impl Story {
                     };
                 }
 
+                if let Some(image_url) = preview.image_url {
+                    return html! {
+                        <p>
+                            { self.render_image(image_url.clone()) }
+                            {description}
+                        </p>
+                    };
+                }
+
                 return html! {
                   <p>{description}</p>
                 };
@@ -100,22 +117,12 @@ impl Story {
         Html::default()
     }
 
-    fn render_image(&self) -> Html {
-        if self.is_loading {
-            return Html::default();
+    fn render_image(&self, image_url: String) -> Html {
+        html! {
+          <figure>
+            <img src=image_url alt=format!("{} story image", self.props.title) width="150" />
+          </figure>
         }
-
-        if let Some(preview) = self.previews.clone() {
-            if let Some(description) = preview.image_url {
-                return html! {
-                  <figure>
-                    <img src=description alt=format!("{} story image", self.props.title) width="150" />
-                  </figure>
-                };
-            }
-        }
-
-        Html::default()
     }
 }
 
@@ -205,15 +212,16 @@ impl Component for Story {
         html! {
             <li class="story">
                 <main>
-                    { self.render_image() }
+                    <h2 class="story-title">{title}</h2>
                     <article>
-                      <h2 class="story-title">{title}</h2>
-                      { self.render_description() }
+                        { self.render_description() }
                     </article>
                 </main>
                 <footer>
-                    { self.render_score() }
-                    { self.render_author() }
+                    <div class="story-meta">
+                        { self.render_score() }
+                        { self.render_author() }
+                    </div>
                     { self.render_read_more() }
                 </footer>
             </li>
