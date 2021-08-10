@@ -120,7 +120,7 @@ impl Story {
     fn render_image(&self, image_url: String) -> Html {
         html! {
           <figure>
-            <img src=image_url alt=format!("{} story image", self.props.title) width="150" />
+            <img src=image_url alt=format!("{} story image", self.props.title) />
           </figure>
         }
     }

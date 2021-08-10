@@ -3,38 +3,50 @@
   border-bottom: 1px solid #f1f1f1;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem auto;
   padding-bottom: 1rem;
-  min-height: 270px;
-
-  @media (max-width: 500px) {
-    min-height: 325px;
-  }
+  width: 95%;
 
   main {
     align-items: flex-start;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 1rem 0;
+    padding-bottom: 1rem;
 
     article {
       display: flex;
-
-      h2 {
-        font-family: 'Brygada 1918', serif;
-        margin: 0;
-        margin-bottom: 1rem;
-      }
+      overflow: hidden;
+      width: 100%;
 
       p {
         text-align: left;
         margin: 0;
 
+        @media (max-width: 500px) {
+          display: flex;
+          flex-direction: column;
+        }
+
         figure {
           float: left;
           margin: 0 1rem 1rem 0;
           width: 150px;
+
+          @media (max-width: 500px) {
+            float: none;
+            text-align: center;
+            margin: 0 auto 1rem 0;
+            width: 100%;
+          }
+
+          img {
+            width: 100%;
+
+            @media (max-width: 500px) {
+              margin: 0 auto;
+            }
+          }
         }
       }
     }
@@ -59,7 +71,9 @@
 }
 
 .story-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Brygada 1918', serif;
+  margin: 0;
+  margin-bottom: 1rem;
 }
 
 .story-meta {
