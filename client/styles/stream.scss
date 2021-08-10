@@ -10,3 +10,18 @@
     width: 95%;
   }
 }
+
+.load-more-stories-button {
+  cursor: pointer;
+  font-family: 'Brygada 1918', sans-serif;
+  font-size: 1.25rem;
+  text-align: center !important;
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  width: 90%;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .1;
+  }
+}

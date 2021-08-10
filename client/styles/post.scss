@@ -62,22 +62,6 @@
   font-family: 'DM Serif Display', serif;
 }
 
-.action-button {
-  color: #313131;
-  border: 1px solid #313131;
-  border-radius: .5rem;
-  box-sizing: border-box;
-  display: flex;
-  padding: .5rem;
-  text-decoration: none;
-  width: 116px;
-
-  &:hover, &:focus, &:active {
-    background-color: #313131;
-    color: #FFFFFF;
-  }
-}
-
 .story-meta {
   align-items: center;
   display: flex;
@@ -92,6 +76,7 @@
   &.read-more-button {
     text-align: right;
     margin-right: 0;
+    width: 116px;
   }  
 
   figure {

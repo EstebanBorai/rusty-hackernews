@@ -22,3 +22,20 @@ body {
   display: flex;
   justify-content: center;
 }
+
+.action-button {
+  background-color: transparent;
+  border: 1px solid #313131;
+  border-radius: .5rem;
+  box-sizing: border-box;
+  color: #313131;
+  display: flex;
+  font-family: 'Inter', sans-serif;
+  padding: .5rem;
+  text-decoration: none;
+
+  &:hover, &:focus, &:active {
+    background-color: #313131;
+    color: #FFFFFF;
+  }
+}

@@ -18,14 +18,19 @@ pub struct Stream {
     error_message: Option<String>,
     fetch_task: Option<FetchTask>,
     is_loading: bool,
+    is_loading_more_stories: bool,
     link: ComponentLink<Self>,
     stories: Option<Vec<Story>>,
+    current_page: usize,
 }
 
 pub enum Msg {
     FetchStories,
     FetchSucced(Vec<Story>),
     FetchFailed(String),
+    FetchNextStoryPage,
+    FetchNextStoryPageSucced(Vec<Story>),
+    FetchNextStoryPageFailed(String),
 }
 
 impl Stream {
@@ -54,16 +59,37 @@ impl Stream {
         }
     }
 
+    fn render_load_more_button(&self) -> Html {
+        let class_name = "action-button load-more-stories-button";
+
+        if self.is_loading_more_stories {
+            return html! {
+                <button disabled=true class=class_name>
+                    {"Loading Stories"}
+                </button>
+            };
+        }
+
+        html! {
+            <button class=class_name onclick=self.link.callback(|_| Msg::FetchNextStoryPage)>
+                {"Load more stories"}
+            </button>
+        }
+    }
+
     fn render_stories(&self) -> Html {
         if let Some(stories) = &self.stories {
             return html! {
-                <ul id="stream">
-                    {
-                        for stories.into_iter().map(|story| {
-                            Stream::render_story(story.clone())
-                        })
-                    }
-                </ul>
+                <div id="stream-wrapper">
+                    <ul id="stream">
+                        {
+                            for stories.into_iter().map(|story| {
+                                Stream::render_story(story.clone())
+                            })
+                        }
+                    </ul>
+                    { self.render_load_more_button() }
+                </div>
             };
         }
 
@@ -82,8 +108,10 @@ impl Component for Stream {
             error_message: None,
             fetch_task: None,
             is_loading: true,
+            is_loading_more_stories: false,
             link,
             stories: None,
+            current_page: 0,
         }
     }
 
@@ -118,9 +146,68 @@ impl Component for Stream {
                 self.error_message = Some(error_message);
             }
             Msg::FetchSucced(stories) => {
+                if let Some(current_stories) = self.stories.clone() {
+                    let mut next_stories = current_stories.clone();
+
+                    stories
+                        .into_iter()
+                        .for_each(|story| next_stories.push(story));
+                    self.stories = Some(next_stories);
+                } else {
+                    self.stories = Some(stories);
+                }
+
                 self.is_loading = false;
                 self.error_message = None;
-                self.stories = Some(stories);
+                self.current_page += 1;
+            }
+            Msg::FetchNextStoryPage => {
+                self.is_loading_more_stories = true;
+                self.error_message = None;
+
+                let page = self.current_page + 1;
+                let request = Request::get(format!("{}?page={}", STORIES_V1_ENDPOINT, page))
+                    .body(Nothing)
+                    .unwrap();
+                let callback =
+                    self.link
+                        .callback(|res: Response<Json<Result<Vec<Story>, Error>>>| {
+                            let Json(data) = res.into_body();
+
+                            match data {
+                                Ok(stories) => Msg::FetchNextStoryPageSucced(stories),
+                                Err(err) => Msg::FetchNextStoryPageFailed(err.to_string()),
+                            }
+                        });
+
+                let mut options = FetchOptions::default();
+
+                options.mode = Some(RequestMode::Cors);
+
+                let task = FetchService::fetch_with_options(request, options, callback).unwrap();
+
+                self.fetch_task = Some(task);
+            }
+            Msg::FetchNextStoryPageFailed(error_message) => {
+                self.is_loading_more_stories = false;
+                self.error_message = Some(error_message);
+            }
+            Msg::FetchNextStoryPageSucced(stories) => {
+                if let Some(current_stories) = self.stories.clone() {
+                    let mut next_stories = current_stories.clone();
+
+                    stories
+                        .into_iter()
+                        .for_each(|story| next_stories.push(story));
+                    self.stories = Some(next_stories);
+                    self.error_message = None;
+                    self.current_page += 1;
+                } else {
+                    // TODO: Improve this error handling for code's sake
+                    self.error_message = Some(String::from("Expected at least one story but instead there's none. Refresh the site please"));
+                }
+
+                self.is_loading_more_stories = false;
             }
         };
 
