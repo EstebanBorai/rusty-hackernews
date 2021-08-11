@@ -42,7 +42,7 @@ impl Stream {
             id: _,
             kids: _,
             score,
-            time: _,
+            time,
             r#type: _,
             url,
         } = story;
@@ -55,6 +55,7 @@ impl Stream {
                 image_url=image_url
                 score=score
                 url=url
+                time=time
             />
         }
     }

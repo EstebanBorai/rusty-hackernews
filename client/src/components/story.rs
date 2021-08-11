@@ -1,4 +1,5 @@
 use anyhow::Error;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use common::LinkPreview;
 use js_sys::encode_uri_component;
 use yew::format::{Json, Nothing};
@@ -18,6 +19,7 @@ pub struct Props {
     pub title: String,
     pub by: String,
     pub score: u32,
+    pub time: u64,
     #[prop_or(None)]
     pub image_url: Option<String>,
     #[prop_or(None)]
@@ -81,6 +83,25 @@ impl Story {
             </figure>
             {self.props.by.clone()}
           </span>
+        }
+    }
+
+    fn render_time(&self) -> Html {
+        let naive = NaiveDateTime::from_timestamp(self.props.time as i64, 0);
+        let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+        let newdate = datetime.format("%Y-%m-%d %H:%M:%S");
+        let time = newdate.to_string();
+
+        html! {
+            <span class="story-field">
+                <figure>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                    </svg>
+                </figure>
+                {time.clone()}
+            </span>
         }
     }
 
@@ -220,8 +241,9 @@ impl Component for Story {
                 </main>
                 <footer>
                     <div class="story-meta">
-                        { self.render_score() }
                         { self.render_author() }
+                        { self.render_score() }
+                        { self.render_time() }
                     </div>
                     { self.render_read_more() }
                 </footer>
