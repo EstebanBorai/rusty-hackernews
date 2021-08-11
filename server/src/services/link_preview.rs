@@ -1,6 +1,5 @@
+use link_preview::fetch::fetch_partially;
 use link_preview::LinkPreview;
-use reqwest::get;
-use std::str::FromStr;
 
 pub struct LinkPreviewService {
     #[allow(dead_code)]
@@ -15,16 +14,8 @@ impl LinkPreviewService {
     }
 
     pub async fn preview_from_url(&self, url: &str) -> Option<LinkPreview> {
-        if let Some(html) = self.fetch(url).await {
-            return LinkPreview::from_str(html.as_str()).ok();
-        }
-
-        None
-    }
-
-    async fn fetch(&self, url: &str) -> Option<String> {
-        if let Ok(response) = get(url).await {
-            return response.text().await.ok();
+        if let Ok(html) = fetch_partially(url).await {
+            return Some(LinkPreview::from(&html));
         }
 
         None

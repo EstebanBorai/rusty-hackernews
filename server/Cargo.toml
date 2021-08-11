@@ -11,7 +11,7 @@ actix-web = "4.0.0-beta.8"
 anyhow = "1.0.42"
 common = { path = "../common" }
 futures = "0.3.16"
-link-preview = "0.0.1"
+link-preview = { version = "0.0.2", features = ["fetch"] }
 reqwest = { version = "0.11.4", features = ["stream"] }
 serde = "1.0.126"
 serde_json = "1.0.64"

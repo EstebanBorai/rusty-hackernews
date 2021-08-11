@@ -153,6 +153,7 @@ impl Component for Story {
 
                 // TODO: Replace "js_sys" approach with a Rust-Native approach
                 if let Some(story_url) = self.props.url.clone() {
+                    #[allow(unused_unsafe)]
                     let url_query = unsafe { encode_uri_component(story_url.as_str()) };
                     let url_query = String::from(url_query);
                     let mut final_url = String::from(PREVIEWS_V1_ENDPOINT);

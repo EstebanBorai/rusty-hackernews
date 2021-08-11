@@ -1026,10 +1026,11 @@ checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
 
 [[package]]
 name = "link-preview"
-version = "0.0.1"
+version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2836005f47c18e043f566a7c8f04c9efa088e0213b4cc167c40e1e285ee0018e"
+checksum = "99dfbab9b0df04cb1012a7f494efdb813bf883c53d718bc3287f427d2dc49432"
 dependencies = [
+ "reqwest",
  "scraper",
  "thiserror",
  "url",

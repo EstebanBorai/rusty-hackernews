@@ -1,5 +1,5 @@
 use actix_web::http::StatusCode;
-use actix_web::web::{Data, HttpRequest, Path, Query};
+use actix_web::web::{Data, HttpRequest, Query};
 use actix_web::HttpResponse;
 use common::LinkPreview;
 use serde::Deserialize;
@@ -23,11 +23,13 @@ pub async fn fetch_preview(app_data: Data<AppData>, req: HttpRequest) -> HttpRes
             .preview_from_url(url.as_str())
             .await
         {
+            let title = preview.title;
+            let description = preview.description;
             let image_url = preview.image_url.and_then(|url| Some(url.to_string()));
 
             return HttpResponse::Ok().json(LinkPreview {
-                title: preview.title,
-                description: preview.description,
+                title,
+                description,
                 image_url,
             });
         }
