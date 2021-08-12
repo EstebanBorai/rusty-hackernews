@@ -3,9 +3,6 @@ use std::env;
 
 pub struct Environment {
     pub database_url: String,
-    pub postgres_user: String,
-    pub postgres_password: String,
-    pub postgres_db: String,
 }
 
 impl Environment {
@@ -16,9 +13,6 @@ impl Environment {
 
         Environment {
             database_url: Environment::get("DATABASE_URL"),
-            postgres_user: Environment::get("POSTGRES_USER"),
-            postgres_password: Environment::get("POSTGRES_PASSWORD"),
-            postgres_db: Environment::get("POSTGRES_DB"),
         }
     }
 
