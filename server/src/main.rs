@@ -1,4 +1,5 @@
 mod app_data;
+mod environment;
 mod error;
 mod routes;
 mod services;
@@ -10,8 +11,8 @@ use self::app_data::AppData;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let port = std::env::var("PORT").unwrap_or(String::from("3000"));
     let data = AppData::new().await;
+    let port = std::env::var("PORT").unwrap_or(String::from("3000"));
 
     HttpServer::new(move || {
         App::new()

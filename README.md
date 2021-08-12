@@ -10,6 +10,20 @@
 
 ## Development
 
+## Docker
+
+> You must have Docker and Docker Compose installed in your system
+
+1. Create a copy of `.env.sample` into a fille name `.env`
+
+2. Execute `docker-compose -f ./docker-compose.dev.yml up --build`
+
+3. Install the `sqlx-cli` using cargo. Follow the [crate documentation](https://lib.rs/crates/sqlx-cli)
+
+4. Run database migrations `sqlx migrate run`
+
+> When done, remember to teardown the Docker system by executing `docker-compose -f ./docker-compose.dev.yml down`
+
 ### Client
 
 1. Install `trunk` following the [official documentation](https://trunkrs.dev/#install).

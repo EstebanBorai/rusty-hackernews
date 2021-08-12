@@ -1,0 +1,27 @@
+name: Run database migrations
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout project files
+        uses: actions/checkout@v2
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Setup "sqlx-cli"
+        run: cargo install sqlx-cli
+
+      - name: Run migrationos
+        run: |
+          sqlx migrate run

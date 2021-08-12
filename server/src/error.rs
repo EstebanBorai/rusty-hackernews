@@ -60,3 +60,15 @@ impl From<serde_json::Error> for Error {
         )
     }
 }
+
+impl From<sqlx::error::Error> for Error {
+    fn from(err: sqlx::error::Error) -> Self {
+        println!("{}", err);
+
+        Error::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "An error ocurred fetching the resource",
+            None,
+        )
+    }
+}
