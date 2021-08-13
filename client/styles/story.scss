@@ -52,7 +52,12 @@
     }
   }
 
-  footer {
+  header {
+    box-sizing: border-box;
+    padding-bottom: .5rem;
+  }
+
+  footer, header {
     * {
       font-family: 'Inter', sans-serif;
       font-size: .9rem;

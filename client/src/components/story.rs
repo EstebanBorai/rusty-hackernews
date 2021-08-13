@@ -89,7 +89,7 @@ impl Story {
     fn render_time(&self) -> Html {
         let naive = NaiveDateTime::from_timestamp(self.props.time as i64, 0);
         let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
-        let newdate = datetime.format("%Y-%m-%d %H:%M:%S");
+        let newdate = datetime.format("%Y-%m-%d at %H:%M");
         let time = newdate.to_string();
 
         html! {
@@ -233,6 +233,10 @@ impl Component for Story {
 
         html! {
             <li class="story">
+                <header>
+                    { self.render_author() }
+                    { self.render_time() }
+                </header>
                 <main>
                     <h2 class="story-title">{title}</h2>
                     <article>
@@ -241,9 +245,7 @@ impl Component for Story {
                 </main>
                 <footer>
                     <div class="story-meta">
-                        { self.render_author() }
                         { self.render_score() }
-                        { self.render_time() }
                     </div>
                     { self.render_read_more() }
                 </footer>
