@@ -1205,10 +1205,11 @@ checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
 
 [[package]]
 name = "link-preview"
-version = "0.0.2"
+version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99dfbab9b0df04cb1012a7f494efdb813bf883c53d718bc3287f427d2dc49432"
+checksum = "bb152c3f780c6cf82e7447b84743539644d5292205ec4a8b011c5086162e6f12"
 dependencies = [
+ "regex",
  "reqwest",
  "scraper",
  "thiserror",

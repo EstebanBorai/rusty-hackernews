@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use link_preview::fetch::fetch_partially;
+use link_preview::html::remove_html_tags;
 use link_preview::LinkPreview;
 use sqlx::{query_as, FromRow, PgPool};
 use std::str::FromStr;
@@ -57,9 +58,18 @@ impl LinkPreviewService {
         }
 
         if let Ok(html) = fetch_partially(url).await {
-            let link_preview = LinkPreview::from(&html);
+            let mut link_preview = LinkPreview::from(&html);
 
-            self.store_preview(url, &link_preview).await;
+            if let Some(description) = link_preview.description {
+                // if a description is available in the `LinkPreview` instance
+                // attempt to remove any existent HTML tags and replace the
+                // current description value with the sanitized version
+                link_preview.description = Some(remove_html_tags(description.as_str()));
+            }
+
+            if let Err(err) = self.store_preview(url, &link_preview).await {
+                eprintln!("An error ocurred storing the link preview:\n{:?}", err);
+            }
 
             return Some(link_preview);
         }
