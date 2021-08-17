@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Story {
     pub id: u64,
     pub r#type: String,
@@ -13,7 +13,7 @@ pub struct Story {
     pub url: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LinkPreview {
     pub title: Option<String>,
     pub image_url: Option<String>,

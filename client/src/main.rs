@@ -2,6 +2,10 @@
 
 mod app;
 mod components;
+mod constants;
+mod pages;
+mod router;
+mod utils;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;

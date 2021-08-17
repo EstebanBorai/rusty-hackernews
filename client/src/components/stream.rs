@@ -7,12 +7,7 @@ use yew::services::FetchService;
 use yew::web_sys::RequestMode;
 
 use crate::components::story::Story as StoryComponent;
-
-#[cfg(not(debug_assertions))]
-const STORIES_V1_ENDPOINT: &str = "https://fluxcap.herokuapp.com/api/v1/stories";
-
-#[cfg(debug_assertions)]
-const STORIES_V1_ENDPOINT: &str = "http://0.0.0.0:3000/api/v1/stories";
+use crate::constants::api;
 
 pub struct Stream {
     error_message: Option<String>,
@@ -39,8 +34,8 @@ impl Stream {
             title,
             by,
             descendants: _,
-            id: _,
-            kids: _,
+            id,
+            kids,
             score,
             time,
             r#type: _,
@@ -50,12 +45,14 @@ impl Stream {
 
         html! {
             <StoryComponent
+                id=id
                 by=by
                 title=title
                 image_url=image_url
                 score=score
                 url=url
                 time=time
+                kids=kids
             />
         }
     }
@@ -122,7 +119,7 @@ impl Component for Stream {
                 self.is_loading = true;
                 self.error_message = None;
 
-                let request = Request::get(STORIES_V1_ENDPOINT).body(Nothing).unwrap();
+                let request = Request::get(api::v1::STORIES).body(Nothing).unwrap();
                 let callback =
                     self.link
                         .callback(|res: Response<Json<Result<Vec<Story>, Error>>>| {
@@ -167,7 +164,7 @@ impl Component for Stream {
                 self.error_message = None;
 
                 let page = self.current_page + 1;
-                let request = Request::get(format!("{}?page={}", STORIES_V1_ENDPOINT, page))
+                let request = Request::get(format!("{}?page={}", api::v1::STORIES, page))
                     .body(Nothing)
                     .unwrap();
                 let callback =

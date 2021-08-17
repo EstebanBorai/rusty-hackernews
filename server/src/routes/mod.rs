@@ -1,7 +1,13 @@
-use actix_files::Files;
+use actix_files::{Files, NamedFile};
 use actix_web::web::{get, scope, ServiceConfig};
 
 mod api;
+
+#[cfg(debug_assertions)]
+const STATIC_SERVE_FROM: &str = "./dist";
+
+#[cfg(not(debug_assertions))]
+const STATIC_SERVE_FROM: &str = "./static";
 
 pub fn bind_routes(app: &mut ServiceConfig) {
     // API
@@ -18,9 +24,14 @@ pub fn bind_routes(app: &mut ServiceConfig) {
     );
 
     // File Serving
-    if cfg!(debug_assertions) {
-        app.service(Files::new("/", "./dist").index_file("index.html"));
-    } else {
-        app.service(Files::new("/", "./static").index_file("index.html"));
-    }
+    // In order to handle client-side routing accordingly the `index.html` file
+    // is always served using the `default_handler`.
+    //
+    // This affects other static files from being served (images, videos,
+    // scripts).
+    app.service(
+        Files::new("/", STATIC_SERVE_FROM)
+            .default_handler(NamedFile::open(format!("{}/index.html", STATIC_SERVE_FROM)).unwrap())
+            .index_file("index.html"),
+    );
 }
