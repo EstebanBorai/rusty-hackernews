@@ -1,7 +1,60 @@
 #story-page {
+  width: 100vw;
+
   header {
-    figure {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    font-size: 1rem;
+    justify-content: space-between;
+    padding: 0 1rem;
+
+    .go-back-to-stream {
+      align-items: center;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      padding: .5rem;
+
+      figure {
+        margin: 0;
+        margin-right: 1rem;
+
+        svg {
+          height: 2rem;
+          width: 2rem;
+        }
+      }
+    }
+
+    .story-id {
+      margin-left: 1rem;
+    }
+  }
+
+  .story-content {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 1rem 1rem 0 1rem;
+
+    .illustration {
+      align-items: center;
+      display: flex;
+      justify-content: center;
       margin: 0;
+      margin-bottom: 2rem;
+      overflow: hidden;
+      width: 100%;
+
+      img {
+        max-height: 400px;
+        max-width: 100%;
+      }
     }
   }
 }

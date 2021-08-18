@@ -1,5 +1,5 @@
 use anyhow::Error;
-use common::Story;
+use common::hacker_news::Story;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::fetch::{FetchOptions, FetchTask, Request, Response};

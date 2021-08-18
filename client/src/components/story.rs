@@ -1,7 +1,6 @@
 use anyhow::Error;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use common::LinkPreview;
-use js_sys::encode_uri_component;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::fetch::{FetchOptions, FetchTask, Request, Response};
@@ -9,7 +8,6 @@ use yew::services::FetchService;
 use yew::web_sys::RequestMode;
 use yew_router::components::RouterAnchor;
 
-use crate::constants::api;
 use crate::router::AppRoute;
 use crate::utils::url::make_link_preview_url;
 
