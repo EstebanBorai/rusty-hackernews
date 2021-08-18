@@ -1,4 +1,5 @@
-use common::Story;
+use actix_web::http::StatusCode;
+use common::hacker_news::{Comment, Item, Story};
 use futures::future::join_all;
 use reqwest::get;
 
@@ -17,21 +18,65 @@ impl HackerNewsService {
     pub async fn find_new_stories(&mut self, page: Option<usize>) -> Result<Vec<Story>> {
         let newstories_ids = self.find_newstories_ids(page).await?;
         let find_story_futures = newstories_ids.iter().map(|id| self.find_story(id));
-        let stories = join_all(find_story_futures).await;
-        let stories: Vec<Story> = stories.into_iter().map(|story| story.unwrap()).collect();
+        let stories = join_all(find_story_futures)
+            .await
+            .into_iter()
+            .collect::<Result<Vec<Story>>>()?;
 
         Ok(stories)
     }
 
     pub async fn find_story(&self, id: &u64) -> Result<Story> {
-        match get(HackerNewsService::uri(&format!("/item/{}.json", id))).await {
-            Ok(res) => {
-                let text = &res.text().await.map_err(Error::from)?;
-                let story = serde_json::from_str::<Story>(&text).map_err(Error::from)?;
+        let item = self.find_item(id).await?;
 
-                Ok(story)
+        match item {
+            Item::Story(story) => Ok(story),
+            _ => Err(Error::new(
+                StatusCode::BAD_REQUEST,
+                &format!("The provided ID doesn't belong to a story item"),
+                None,
+            )),
+        }
+    }
+
+    pub async fn find_story_comments(&self, id: &u64) -> Result<Vec<Comment>> {
+        let item = self.find_item(id).await?;
+
+        match item {
+            Item::Story(story) => {
+                if let Some(kids) = story.kids {
+                    if !kids.is_empty() {
+                        let comments_futures = kids.iter().map(|id| self.find_item(id));
+
+                        return match join_all(comments_futures)
+                            .await
+                            .into_iter()
+                            .map(|story| story.map_err(Error::from))
+                            .collect::<Result<Vec<Item>>>()
+                        {
+                            Ok(items) => {
+                                let comments = items
+                                    .into_iter()
+                                    .filter_map(|item| match item {
+                                        Item::Comment(comment) => Some(comment),
+                                        _ => None,
+                                    })
+                                    .collect::<Vec<Comment>>();
+
+                                Ok(comments)
+                            }
+                            Err(err) => Err(err),
+                        };
+                    }
+                }
+
+                return Ok(Vec::new());
             }
-            Err(err) => Err(Error::from(err)),
+            _ => Err(Error::new(
+                StatusCode::BAD_REQUEST,
+                &format!("The provided ID doesn't belong to a story item"),
+                None,
+            )),
         }
     }
 
@@ -58,6 +103,18 @@ impl HackerNewsService {
                 let ids = ids.into_iter().skip(offset).take(PAGE_SIZE).collect();
 
                 Ok(ids)
+            }
+            Err(err) => Err(Error::from(err)),
+        }
+    }
+
+    async fn find_item(&self, id: &u64) -> Result<Item> {
+        match get(HackerNewsService::uri(&format!("/item/{}.json", id))).await {
+            Ok(res) => {
+                let text = &res.text().await.map_err(Error::from)?;
+                let story = serde_json::from_str::<Item>(&text).map_err(Error::from)?;
+
+                Ok(story)
             }
             Err(err) => Err(Error::from(err)),
         }

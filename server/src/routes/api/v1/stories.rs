@@ -9,6 +9,11 @@ pub struct ListStoriesParams {
     page: Option<usize>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct FindStoryKidsParams {
+    id: u64,
+}
+
 pub async fn list_new_stories(app_data: Data<AppData>, req: HttpRequest) -> HttpResponse {
     let params = Query::<ListStoriesParams>::from_query(req.query_string()).unwrap();
 
@@ -33,6 +38,19 @@ pub async fn find_one(app_data: Data<AppData>, id: Path<u64>) -> HttpResponse {
         .await
     {
         Ok(story) => HttpResponse::Ok().json(story),
+        Err(err) => err.as_http_response(),
+    }
+}
+
+pub async fn find_story_kids(app_data: Data<AppData>, id: Path<u64>) -> HttpResponse {
+    match app_data
+        .hacker_news_service
+        .lock()
+        .await
+        .find_story_comments(&id)
+        .await
+    {
+        Ok(stories) => HttpResponse::Ok().json(stories),
         Err(err) => err.as_http_response(),
     }
 }

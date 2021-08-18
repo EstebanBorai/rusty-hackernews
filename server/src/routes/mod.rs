@@ -17,18 +17,15 @@ pub fn bind_routes(app: &mut ServiceConfig) {
                 .service(
                     scope("/stories")
                         .route("", get().to(api::v1::stories::list_new_stories))
-                        .route("/{id}", get().to(api::v1::stories::find_one)),
+                        .route("/{id}", get().to(api::v1::stories::find_one))
+                        .route("/{id}/kids", get().to(api::v1::stories::find_story_kids)),
                 )
                 .service(scope("/previews").route("", get().to(api::v1::previews::fetch_preview))),
         ),
     );
 
-    // File Serving
     // In order to handle client-side routing accordingly the `index.html` file
     // is always served using the `default_handler`.
-    //
-    // This affects other static files from being served (images, videos,
-    // scripts).
     app.service(
         Files::new("/", STATIC_SERVE_FROM)
             .default_handler(NamedFile::open(format!("{}/index.html", STATIC_SERVE_FROM)).unwrap())
