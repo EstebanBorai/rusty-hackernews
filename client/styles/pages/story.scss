@@ -1,7 +1,7 @@
 #story-page {
   width: 100vw;
 
-  header {
+  #story-header {
     align-items: center;
     box-sizing: border-box;
     display: flex;
@@ -54,6 +54,38 @@
       img {
         max-height: 400px;
         max-width: 100%;
+      }
+    }
+  }
+
+  #comments {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .comment {
+      border: 1px solid #dedede;
+      border-radius: .25rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+      padding: .5rem;
+
+      .comment-header {
+        border-bottom: 1px solid #dedede;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 1rem;
+        
+        * {
+          color: #313131;
+          text-decoration: none !important;
+        }
+      }
+
+      .comment-body {
+        box-sizing: border-box;
+        padding: .5rem;
       }
     }
   }

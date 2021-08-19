@@ -8,18 +8,19 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::error::{Error, Result};
+use crate::utils::sha256;
 
 pub struct LinkPreviewService {
     database_pool: Arc<PgPool>,
 }
 
-#[derive(FromRow)]
+#[derive(Debug, FromRow)]
 struct PreviewsRow {
     id: Uuid,
     title: Option<String>,
     description: Option<String>,
     domain: Option<String>,
-    url: String,
+    url_hash: String,
     image_url: Option<String>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
@@ -38,8 +39,7 @@ impl From<PreviewsRow> for LinkPreview {
         LinkPreview {
             title: row.title,
             description: row.description,
-            // TODO: Implement support for domain
-            domain: None,
+            domain: row.domain,
             image_url,
         }
     }
@@ -51,7 +51,9 @@ impl LinkPreviewService {
     }
 
     pub async fn preview_from_url(&self, url: &str) -> Option<LinkPreview> {
-        if let Ok(response) = self.find_preview(url).await {
+        let url_hash = sha256::hash(url);
+
+        if let Ok(response) = self.find_preview(&url_hash).await {
             if let Some(link_preview) = response {
                 return Some(link_preview);
             }
@@ -67,7 +69,7 @@ impl LinkPreviewService {
                 link_preview.description = Some(remove_html_tags(description.as_str()));
             }
 
-            if let Err(err) = self.store_preview(url, &link_preview).await {
+            if let Err(err) = self.store_preview(&url_hash, &link_preview).await {
                 eprintln!("An error ocurred storing the link preview:\n{:?}", err);
             }
 
@@ -77,9 +79,9 @@ impl LinkPreviewService {
         None
     }
 
-    async fn find_preview(&self, url: &str) -> Result<Option<LinkPreview>> {
-        let row: PreviewsRow = query_as("SELECT * FROM previews WHERE url = $1")
-            .bind(url)
+    async fn find_preview(&self, url_hash: &str) -> Result<Option<LinkPreview>> {
+        let row: PreviewsRow = query_as("SELECT * FROM previews WHERE url_hash = $1")
+            .bind(url_hash)
             .fetch_one(&*self.database_pool)
             .await
             .map_err(Error::from)?;
@@ -89,7 +91,11 @@ impl LinkPreviewService {
         Ok(Some(link_preview))
     }
 
-    async fn store_preview(&self, url: &str, link_preview: &LinkPreview) -> Result<LinkPreview> {
+    async fn store_preview(
+        &self,
+        url_hash: &str,
+        link_preview: &LinkPreview,
+    ) -> Result<LinkPreview> {
         let image_url = if link_preview.image_url.is_some() {
             let image_url = link_preview.image_url.clone().unwrap();
 
@@ -103,19 +109,22 @@ impl LinkPreviewService {
         INSERT INTO previews (
             title,
             description,
-            url,
+            domain,
+            url_hash,
             image_url
         ) VALUES (
             $1,
             $2,
             $3,
-            $4
+            $4,
+            $5
         ) RETURNING *
         "#,
         )
         .bind(link_preview.title.clone())
         .bind(link_preview.description.clone())
-        .bind(url)
+        .bind(link_preview.domain.clone())
+        .bind(url_hash)
         .bind(image_url)
         .fetch_one(&*self.database_pool)
         .await?;

@@ -1,13 +1,14 @@
 use anyhow::Error;
-use common::hacker_news::Story;
+use common::hacker_news;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::fetch::{FetchOptions, FetchTask, Request, Response};
 use yew::services::FetchService;
 use yew::web_sys::RequestMode;
 
-use crate::components::story::Story as StoryComponent;
 use crate::constants::api;
+
+use super::Story;
 
 pub struct Stream {
     error_message: Option<String>,
@@ -15,22 +16,22 @@ pub struct Stream {
     is_loading: bool,
     is_loading_more_stories: bool,
     link: ComponentLink<Self>,
-    stories: Option<Vec<Story>>,
+    stories: Option<Vec<hacker_news::Story>>,
     current_page: usize,
 }
 
 pub enum Msg {
     FetchStories,
-    FetchSucced(Vec<Story>),
+    FetchSucced(Vec<hacker_news::Story>),
     FetchFailed(String),
     FetchNextStoryPage,
-    FetchNextStoryPageSucced(Vec<Story>),
+    FetchNextStoryPageSucced(Vec<hacker_news::Story>),
     FetchNextStoryPageFailed(String),
 }
 
 impl Stream {
-    fn render_story(story: Story) -> Html {
-        let Story {
+    fn render_story(story: hacker_news::Story) -> Html {
+        let hacker_news::Story {
             title,
             by,
             descendants: _,
@@ -44,7 +45,7 @@ impl Stream {
         let image_url: Option<String> = None;
 
         html! {
-            <StoryComponent
+            <Story
                 id=id
                 by=by
                 title=title
@@ -120,16 +121,16 @@ impl Component for Stream {
                 self.error_message = None;
 
                 let request = Request::get(api::v1::STORIES).body(Nothing).unwrap();
-                let callback =
-                    self.link
-                        .callback(|res: Response<Json<Result<Vec<Story>, Error>>>| {
-                            let Json(data) = res.into_body();
+                let callback = self.link.callback(
+                    |res: Response<Json<Result<Vec<hacker_news::Story>, Error>>>| {
+                        let Json(data) = res.into_body();
 
-                            match data {
-                                Ok(stories) => Msg::FetchSucced(stories),
-                                Err(err) => Msg::FetchFailed(err.to_string()),
-                            }
-                        });
+                        match data {
+                            Ok(stories) => Msg::FetchSucced(stories),
+                            Err(err) => Msg::FetchFailed(err.to_string()),
+                        }
+                    },
+                );
 
                 let mut options = FetchOptions::default();
 
@@ -167,16 +168,16 @@ impl Component for Stream {
                 let request = Request::get(format!("{}?page={}", api::v1::STORIES, page))
                     .body(Nothing)
                     .unwrap();
-                let callback =
-                    self.link
-                        .callback(|res: Response<Json<Result<Vec<Story>, Error>>>| {
-                            let Json(data) = res.into_body();
+                let callback = self.link.callback(
+                    |res: Response<Json<Result<Vec<hacker_news::Story>, Error>>>| {
+                        let Json(data) = res.into_body();
 
-                            match data {
-                                Ok(stories) => Msg::FetchNextStoryPageSucced(stories),
-                                Err(err) => Msg::FetchNextStoryPageFailed(err.to_string()),
-                            }
-                        });
+                        match data {
+                            Ok(stories) => Msg::FetchNextStoryPageSucced(stories),
+                            Err(err) => Msg::FetchNextStoryPageFailed(err.to_string()),
+                        }
+                    },
+                );
 
                 let mut options = FetchOptions::default();
 

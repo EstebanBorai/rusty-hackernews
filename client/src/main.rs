@@ -3,7 +3,7 @@
 mod app;
 mod components;
 mod constants;
-mod pages;
+mod modules;
 mod router;
 mod utils;
 

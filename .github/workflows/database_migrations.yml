@@ -12,16 +12,5 @@ jobs:
       - name: Checkout project files
         uses: actions/checkout@v2
 
-      - name: Setup Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Setup "sqlx-cli"
-        run: cargo install sqlx-cli
-
       - name: Run migrationos
-        run: |
-          sqlx migrate run
+        run: ./bin/sqlx-cli migrate run

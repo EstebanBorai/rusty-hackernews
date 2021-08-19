@@ -1,7 +1,10 @@
+//! https://github.com/HackerNews/API
+
 use actix_web::http::StatusCode;
-use common::hacker_news::{Comment, Item, Story};
+use common::hacker_news::{Comment, Item, Story, Type};
 use futures::future::join_all;
 use reqwest::get;
+use std::convert::TryFrom;
 
 use crate::error::{Error, Result};
 
@@ -29,55 +32,49 @@ impl HackerNewsService {
     pub async fn find_story(&self, id: &u64) -> Result<Story> {
         let item = self.find_item(id).await?;
 
-        match item {
-            Item::Story(story) => Ok(story),
-            _ => Err(Error::new(
-                StatusCode::BAD_REQUEST,
-                &format!("The provided ID doesn't belong to a story item"),
-                None,
-            )),
+        if matches!(item.r#type, Type::Story) {
+            return Story::try_from(item).map_err(Error::from);
         }
+
+        Err(Error::new(
+            StatusCode::BAD_REQUEST,
+            &format!("The provided ID doesn't belong to a story item"),
+            None,
+        ))
+    }
+
+    pub async fn find_comment(&self, id: &u64) -> Result<Comment> {
+        let item = self.find_item(id).await?;
+
+        if matches!(item.r#type, Type::Comment) {
+            return Comment::try_from(item).map_err(Error::from);
+        }
+
+        Err(Error::new(
+            StatusCode::BAD_REQUEST,
+            &format!("The provided ID doesn't belong to a comment item"),
+            None,
+        ))
     }
 
     pub async fn find_story_comments(&self, id: &u64) -> Result<Vec<Comment>> {
-        let item = self.find_item(id).await?;
+        let story = self.find_story(id).await?;
 
-        match item {
-            Item::Story(story) => {
-                if let Some(kids) = story.kids {
-                    if !kids.is_empty() {
-                        let comments_futures = kids.iter().map(|id| self.find_item(id));
-
-                        return match join_all(comments_futures)
-                            .await
-                            .into_iter()
-                            .map(|story| story.map_err(Error::from))
-                            .collect::<Result<Vec<Item>>>()
-                        {
-                            Ok(items) => {
-                                let comments = items
-                                    .into_iter()
-                                    .filter_map(|item| match item {
-                                        Item::Comment(comment) => Some(comment),
-                                        _ => None,
-                                    })
-                                    .collect::<Vec<Comment>>();
-
-                                Ok(comments)
-                            }
-                            Err(err) => Err(err),
-                        };
-                    }
-                }
-
+        if let Some(kids) = story.kids {
+            if kids.is_empty() {
                 return Ok(Vec::new());
             }
-            _ => Err(Error::new(
-                StatusCode::BAD_REQUEST,
-                &format!("The provided ID doesn't belong to a story item"),
-                None,
-            )),
+
+            let comments_futures = kids.iter().map(|id| self.find_comment(id));
+
+            return join_all(comments_futures)
+                .await
+                .into_iter()
+                .map(|comment| comment.map_err(Error::from))
+                .collect::<Result<Vec<Comment>>>();
         }
+
+        return Ok(Vec::new());
     }
 
     #[allow(dead_code)]
@@ -112,9 +109,9 @@ impl HackerNewsService {
         match get(HackerNewsService::uri(&format!("/item/{}.json", id))).await {
             Ok(res) => {
                 let text = &res.text().await.map_err(Error::from)?;
-                let story = serde_json::from_str::<Item>(&text).map_err(Error::from)?;
+                let item = serde_json::from_str::<Item>(&text).map_err(Error::from)?;
 
-                Ok(story)
+                Ok(item)
             }
             Err(err) => Err(Error::from(err)),
         }

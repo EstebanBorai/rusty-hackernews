@@ -1,17 +1,19 @@
+mod components;
+
 use yew::prelude::*;
 
-use crate::components::stream::Stream;
+use self::components::Stream;
 
-pub struct Home {}
+pub struct Index {}
 
 pub enum Msg {}
 
-impl Component for Home {
+impl Component for Index {
     type Message = Msg;
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Home {}
+        Index {}
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {

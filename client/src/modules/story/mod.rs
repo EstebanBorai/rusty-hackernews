@@ -1,3 +1,5 @@
+mod components;
+
 use anyhow::Error;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
@@ -10,12 +12,14 @@ use crate::constants::api;
 use crate::router::AppRoute;
 use crate::utils::url::make_link_preview_url;
 
+use self::components::Comments;
+
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
     pub id: u64,
 }
 
-pub struct Story {
+pub struct Index {
     props: Props,
     link: ComponentLink<Self>,
     is_loading: bool,
@@ -33,7 +37,7 @@ pub enum Msg {
     FetchLinkPreviewSuccess(common::LinkPreview),
 }
 
-impl Story {
+impl Index {
     fn render_story_image(&self) -> Html {
         if let Some(link_preview) = self.link_preview.clone() {
             if let Some(image_url) = link_preview.image_url {
@@ -49,12 +53,12 @@ impl Story {
     }
 }
 
-impl Component for Story {
+impl Component for Index {
     type Message = Msg;
     type Properties = Props;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Story {
+        Index {
             props,
             link,
             is_loading: false,
@@ -171,7 +175,7 @@ impl Component for Story {
         if let Some(story) = self.story.clone() {
             return html! {
                 <section id="story-page">
-                    <header>
+                    <header id="story-header">
                         <RouterAnchor<AppRoute> route=AppRoute::Home classes="router,active">
                             <strong class="action-button go-back-to-stream">
                                 <figure>
@@ -189,6 +193,8 @@ impl Component for Story {
                     <main class="story-content">
                         {self.render_story_image()}
                         <h2 class="story-title">{story.title.clone()}</h2>
+                        <hr />
+                        <Comments id=story.id />
                     </main>
                 </section>
             };

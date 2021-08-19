@@ -3,6 +3,7 @@ mod environment;
 mod error;
 mod routes;
 mod services;
+mod utils;
 
 use actix_web::{dev::Service, http::HeaderValue, App, HttpServer};
 use reqwest::header;
