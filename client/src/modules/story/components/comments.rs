@@ -86,9 +86,18 @@ impl Comments {
                                         { self.render_time(comment.time) }
                                     </header>
                                 </a>
-                                <main class="comment-body">
-                                    <RawHtml inner_html=comment.text.clone().unwrap() />
-                                </main>
+                                {
+                                    if comment.text.is_some() {
+                                        html! {
+                                            <main class="comment-body">
+                                                <RawHtml inner_html=comment.text.clone().unwrap() />
+                                            </main>
+                                        }
+                                    } else {
+                                        Html::default()
+                                    }
+                                }
+
                             </li>
                         }
                     })
