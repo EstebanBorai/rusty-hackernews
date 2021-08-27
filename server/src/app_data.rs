@@ -6,10 +6,12 @@ use tokio::sync::Mutex;
 use crate::environment::Environment;
 use crate::services::hacker_news::HackerNewsService;
 use crate::services::link_preview::LinkPreviewService;
+use crate::services::user::UserService;
 
 pub struct AppData {
     pub hacker_news_service: Arc<Mutex<HackerNewsService>>,
     pub link_preview_service: Arc<Mutex<LinkPreviewService>>,
+    pub users_service: Arc<Mutex<UserService>>,
     pub database_pool: Arc<PgPool>,
     environment: Arc<Environment>,
 }
@@ -22,10 +24,12 @@ impl AppData {
             &database_pool,
         ))));
         let hacker_news_service = Arc::new(Mutex::new(HackerNewsService::new()));
+        let users_service = Arc::new(Mutex::new(UserService::new(Arc::clone(&database_pool))));
 
         Data::new(AppData {
             hacker_news_service,
             link_preview_service,
+            users_service,
             database_pool,
             environment,
         })

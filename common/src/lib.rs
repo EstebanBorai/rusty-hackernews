@@ -1,10 +1,24 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LinkPreview {
     pub title: Option<String>,
     pub image_url: Option<String>,
     pub description: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct User {
+    pub id: Uuid,
+    pub first_name: String,
+    pub surname: Option<String>,
+    pub email: String,
+    pub username: String,
+    pub avatar_url: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 pub mod hacker_news {

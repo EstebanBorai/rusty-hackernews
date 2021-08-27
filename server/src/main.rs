@@ -1,4 +1,5 @@
 mod app_data;
+mod domain;
 mod environment;
 mod error;
 mod routes;

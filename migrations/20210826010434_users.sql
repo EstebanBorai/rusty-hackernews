@@ -1,0 +1,12 @@
+-- Add migration script here
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  first_name VARCHAR(120) NOT NULL,
+  surname VARCHAR(120),
+  email VARCHAR(256) NOT NULL,
+  username VARCHAR(90) NOT NULL UNIQUE,
+  password_hash CHAR(64) NOT NULL,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

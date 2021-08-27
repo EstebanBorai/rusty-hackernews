@@ -97,3 +97,11 @@ impl From<sqlx::error::Error> for Error {
         )
     }
 }
+
+impl From<bcrypt::BcryptError> for Error {
+    fn from(err: bcrypt::BcryptError) -> Self {
+        println!("{:#?}", err);
+
+        Error::new(StatusCode::BAD_REQUEST, &err.to_string(), None)
+    }
+}

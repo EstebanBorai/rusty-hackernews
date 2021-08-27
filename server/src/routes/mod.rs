@@ -1,5 +1,5 @@
 use actix_files::{Files, NamedFile};
-use actix_web::web::{get, scope, ServiceConfig};
+use actix_web::web::{get, post, scope, ServiceConfig};
 
 mod api;
 
@@ -20,7 +20,8 @@ pub fn bind_routes(app: &mut ServiceConfig) {
                         .route("/{id}", get().to(api::v1::stories::find_one))
                         .route("/{id}/kids", get().to(api::v1::stories::find_story_kids)),
                 )
-                .service(scope("/previews").route("", get().to(api::v1::previews::fetch_preview))),
+                .service(scope("/previews").route("", get().to(api::v1::previews::fetch_preview)))
+                .service(scope("/users").route("", post().to(api::v1::users::register))),
         ),
     );
 
