@@ -15,6 +15,18 @@ async fn main() -> std::io::Result<()> {
     let data = AppData::new().await;
     let port = std::env::var("PORT").unwrap_or(String::from("3000"));
 
+    if cfg!(not(debug_assertions)) {
+        let _guard = sentry::init((
+            "https://a5eec1eb178d4b368e4dfad2c4b3c044@o446883.ingest.sentry.io/5934543",
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                ..Default::default()
+            },
+        ));
+    }
+
+    std::env::set_var("RUST_BACKTRACE", "1");
+
     HttpServer::new(move || {
         App::new()
             .app_data(data.clone())

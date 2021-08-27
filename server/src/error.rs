@@ -13,11 +13,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 impl Error {
     pub fn new(status_code: StatusCode, message: &str, details: Option<String>) -> Self {
-        Error {
+        let err = Error {
             status_code: status_code.as_u16(),
             message: message.to_string(),
             details,
-        }
+        };
+
+        sentry::capture_error(&err);
+
+        err
     }
 
     pub fn as_http_response(&self) -> HttpResponse {
@@ -36,6 +40,14 @@ impl Error {
         }
     }
 }
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+impl std::error::Error for Error {}
 
 impl From<anyhow::Error> for Error {
     fn from(err: anyhow::Error) -> Self {
