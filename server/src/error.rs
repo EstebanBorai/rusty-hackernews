@@ -1,12 +1,13 @@
 use actix_web::http::StatusCode;
 use actix_web::HttpResponse;
-use std::fmt::{Display, Formatter};
 use serde::Serialize;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Serialize)]
 pub struct Error {
     status_code: u16,
     message: String,
+    #[serde(skip_serializing)]
     details: Option<String>,
 }
 
@@ -69,7 +70,7 @@ impl From<reqwest::Error> for Error {
         Error::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             "An error ocurred fetching the resource",
-            None,
+            Some(err.to_string()),
         )
     }
 }
@@ -81,7 +82,7 @@ impl From<serde_json::Error> for Error {
         Error::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             "An error ocurred fetching the resource",
-            None,
+            Some(err.to_string()),
         )
     }
 }
@@ -93,7 +94,7 @@ impl From<sqlx::error::Error> for Error {
         Error::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             "An error ocurred fetching the resource",
-            None,
+            Some(err.to_string()),
         )
     }
 }
@@ -102,6 +103,10 @@ impl From<bcrypt::BcryptError> for Error {
     fn from(err: bcrypt::BcryptError) -> Self {
         println!("{:#?}", err);
 
-        Error::new(StatusCode::BAD_REQUEST, &err.to_string(), None)
+        Error::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "An unexpected error ocurred",
+            Some(err.to_string()),
+        )
     }
 }

@@ -1,7 +1,7 @@
 use actix_web::http::StatusCode;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
+use sqlx::{FromRow, PgPool, Postgres};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -57,7 +57,7 @@ impl UserService {
     }
 
     pub async fn register(&self, register_dto: RegisterDto) -> Result<User> {
-        let password_hash = bcrypt::hash(register_dto.password, 12)?;
+        let password_hash = User::hash_password(&register_dto.password)?;
 
         if !User::is_valid_email(&register_dto.email) {
             return Err(Error::new(
@@ -96,5 +96,65 @@ impl UserService {
         .await?;
 
         Ok(User::from(row))
+    }
+
+    pub async fn validate(&self, email: &str, plain_password: &str) -> Result<User> {
+        match sqlx::query_as::<Postgres, UsersRow>("SELECT * FROM users WHERE users.email = $1")
+            .bind(email)
+            .fetch_one(&*self.database_pool)
+            .await
+        {
+            Ok(row) => {
+                if User::verify_password(plain_password, &row.password_hash)? {
+                    return Ok(User::from(row));
+                }
+
+                Err(Error::new(
+                    StatusCode::UNAUTHORIZED,
+                    "Invalid email/password combination",
+                    None,
+                ))
+            }
+            Err(err) => {
+                if matches!(err, sqlx::Error::RowNotFound) {
+                    return Err(Error::new(
+                        StatusCode::BAD_REQUEST,
+                        "The provided email is not valid",
+                        None,
+                    ));
+                }
+
+                if let Ok(_) = self.find_by_email(email).await {
+                    return Err(Error::new(
+                        StatusCode::BAD_REQUEST,
+                        "The email is already taken",
+                        None,
+                    ));
+                }
+
+                Err(Error::from(err))
+            }
+        }
+    }
+
+    pub async fn find_by_email(&self, email: &str) -> Result<User> {
+        match sqlx::query_as::<Postgres, UsersRow>("SELECT * FROM users WHERE users.email = $1")
+            .bind(email)
+            .fetch_one(&*self.database_pool)
+            .await
+        {
+            Ok(row) => Ok(User::from(row)),
+            Err(err) => {
+                if matches!(err, sqlx::Error::RowNotFound) {
+                    return Err(Error::new(
+                        StatusCode::BAD_REQUEST,
+                        &format!("User with email \"{}\" not found", email),
+                        None,
+                    ));
+                }
+
+                Err(Error::from(err))
+            }
+        }
     }
 }

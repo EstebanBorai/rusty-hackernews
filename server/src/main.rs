@@ -13,10 +13,14 @@ use self::app_data::AppData;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_BACKTRACE", "1");
+
     let data = AppData::new().await;
     let port = std::env::var("PORT").unwrap_or(String::from("3000"));
 
     if cfg!(not(debug_assertions)) {
+        // when the init guard is dropped the send queue is flushed and the
+        // transport will be shut down and no further events can be sent.
         let _guard = sentry::init((
             "https://a5eec1eb178d4b368e4dfad2c4b3c044@o446883.ingest.sentry.io/5934543",
             sentry::ClientOptions {
@@ -25,8 +29,6 @@ async fn main() -> std::io::Result<()> {
             },
         ));
     }
-
-    std::env::set_var("RUST_BACKTRACE", "1");
 
     HttpServer::new(move || {
         App::new()
