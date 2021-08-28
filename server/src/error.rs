@@ -1,5 +1,6 @@
 use actix_web::http::StatusCode;
 use actix_web::HttpResponse;
+use std::fmt::{Display, Formatter};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -41,9 +42,9 @@ impl Error {
     }
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:#?}", self)
     }
 }
 
