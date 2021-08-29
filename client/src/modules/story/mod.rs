@@ -107,7 +107,6 @@ impl Component for Index {
                 self.is_loading = false;
             }
             Msg::FetchLinkPreview => {
-                self.is_loading = true;
                 self.error_message = None;
 
                 let story = self.story.clone().unwrap();
@@ -159,7 +158,7 @@ impl Component for Index {
     fn view(&self) -> Html {
         if self.is_loading {
             return html! {
-                <h1>{"Fetching story"}</h1>
+                <h1>{"Fetching story!!!"}</h1>
             };
         }
 
