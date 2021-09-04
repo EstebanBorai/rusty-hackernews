@@ -110,3 +110,15 @@ impl From<bcrypt::BcryptError> for Error {
         )
     }
 }
+
+impl From<jsonwebtoken::errors::Error> for Error {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        println!("{:#?}", err);
+
+        Error::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "An unexpected error ocurred",
+            Some(err.to_string()),
+        )
+    }
+}

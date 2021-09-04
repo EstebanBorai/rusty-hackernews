@@ -13,6 +13,7 @@ pub struct AppData {
     pub link_preview_service: Arc<Mutex<LinkPreviewService>>,
     pub users_service: Arc<Mutex<UserService>>,
     pub database_pool: Arc<PgPool>,
+    #[allow(dead_code)]
     environment: Arc<Environment>,
 }
 
@@ -24,7 +25,10 @@ impl AppData {
             &database_pool,
         ))));
         let hacker_news_service = Arc::new(Mutex::new(HackerNewsService::new()));
-        let users_service = Arc::new(Mutex::new(UserService::new(Arc::clone(&database_pool))));
+        let users_service = Arc::new(Mutex::new(UserService::new(
+            Arc::clone(&database_pool),
+            Arc::clone(&environment),
+        )));
 
         Data::new(AppData {
             hacker_news_service,

@@ -33,7 +33,10 @@ pub fn bind_routes(app: &mut ServiceConfig) {
     // is always served using the `default_handler`.
     app.service(
         Files::new("/", STATIC_SERVE_FROM)
-            .default_handler(NamedFile::open(format!("{}/index.html", STATIC_SERVE_FROM)).unwrap())
+            .default_handler(
+                NamedFile::open(format!("{}/index.html", STATIC_SERVE_FROM))
+                    .expect(&format!("Failed to find {} directory", STATIC_SERVE_FROM)),
+            )
             .index_file("index.html"),
     );
 }

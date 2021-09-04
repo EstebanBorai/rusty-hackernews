@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 mod app_data;
 mod domain;
 mod environment;
@@ -13,6 +16,8 @@ use self::app_data::AppData;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init();
+    info!("Logger initialized");
     std::env::set_var("RUST_BACKTRACE", "1");
 
     let data = AppData::new().await;

@@ -1,11 +1,13 @@
 use actix_web::http::StatusCode;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool, Postgres};
 use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::User;
+use crate::environment::Environment;
 use crate::error::{Error, Result};
 
 #[derive(Deserialize, Serialize)]
@@ -27,8 +29,15 @@ struct UsersRow {
     username: String,
     password_hash: String,
     avatar_url: Option<String>,
+    token: Option<String>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    exp: usize,
+    user: User,
 }
 
 impl From<UsersRow> for User {
@@ -41,6 +50,7 @@ impl From<UsersRow> for User {
             username: row.username,
             password_hash: row.password_hash,
             avatar_url: row.avatar_url,
+            token: row.token,
             created_at: row.created_at,
             updated_at: row.updated_at,
         }
@@ -49,11 +59,15 @@ impl From<UsersRow> for User {
 
 pub struct UserService {
     database_pool: Arc<PgPool>,
+    environment: Arc<Environment>,
 }
 
 impl UserService {
-    pub fn new(database_pool: Arc<PgPool>) -> Self {
-        UserService { database_pool }
+    pub fn new(database_pool: Arc<PgPool>, environment: Arc<Environment>) -> Self {
+        UserService {
+            database_pool,
+            environment,
+        }
     }
 
     pub async fn register(&self, register_dto: RegisterDto) -> Result<User> {
@@ -124,14 +138,6 @@ impl UserService {
                     ));
                 }
 
-                if let Ok(_) = self.find_by_email(email).await {
-                    return Err(Error::new(
-                        StatusCode::BAD_REQUEST,
-                        "The email is already taken",
-                        None,
-                    ));
-                }
-
                 Err(Error::from(err))
             }
         }
@@ -156,5 +162,45 @@ impl UserService {
                 Err(Error::from(err))
             }
         }
+    }
+
+    pub async fn sign_token(&self, user: &User) -> Result<(String, DateTime<Utc>)> {
+        let header = Header::default();
+        let exp = Utc::now() + Duration::hours(12);
+        let claims = Claims {
+            exp: exp.timestamp() as usize,
+            user: user.clone(),
+        };
+        let encoding_key = self.environment.json_web_token_encoding_key.as_bytes();
+        let encoding_key = EncodingKey::from_secret(encoding_key);
+        let token = encode(&header, &claims, &encoding_key).map_err(Error::from)?;
+
+        match self.store_user_token(&user, &token).await {
+            Ok(_) => Ok((token, exp)),
+            Err(error) => Err(error),
+        }
+    }
+
+    pub fn decode_token(&self, token: &str) -> Result<Claims> {
+        let decoding_key = self.environment.json_web_token_encoding_key.as_bytes();
+        let decoding_key = DecodingKey::from_secret(decoding_key);
+        let token_message =
+            decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::HS256))?;
+
+        Ok(token_message.claims)
+    }
+
+    async fn store_user_token(&self, user: &User, token: &str) -> Result<()> {
+        // The "RETURNING *" statement at the end is added because otherwise
+        // the `query_as` call returns a `RowNotFound` error instance
+        sqlx::query_as::<Postgres, UsersRow>(
+            "UPDATE users SET token = $1 WHERE users.id = $2 RETURNING *",
+        )
+        .bind(&token)
+        .bind(&user.id)
+        .fetch_one(&*self.database_pool)
+        .await?;
+
+        Ok(())
     }
 }

@@ -3,6 +3,7 @@ use std::env;
 
 pub struct Environment {
     pub database_url: String,
+    pub json_web_token_encoding_key: String,
 }
 
 impl Environment {
@@ -13,6 +14,7 @@ impl Environment {
 
         Environment {
             database_url: Environment::get("DATABASE_URL"),
+            json_web_token_encoding_key: Environment::get("JSON_WEB_TOKEN_ENCODING_KEY"),
         }
     }
 

@@ -7,7 +7,7 @@ use crate::error::Result;
 
 pub const EMAIL_REGEXP: &str = r#"/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/"#;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
     pub id: Uuid,
     pub first_name: String,
@@ -16,6 +16,7 @@ pub struct User {
     pub username: String,
     pub password_hash: String,
     pub avatar_url: Option<String>,
+    pub token: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

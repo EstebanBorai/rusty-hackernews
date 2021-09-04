@@ -37,9 +37,21 @@
 1. Install `cargo watch`, even if its not required is conveninent to
 have the project built on every file change in the project
 
-2. Run `cargo watch -x "run --package server"`
+2. Run `RUST_LOG=INFO cargo watch -x "run --package server"`
 
 3. The website is available at http://0.0.0.0:3000
+
+#### Ubuntu 20 Notes
+
+Open SSL it's required to run the server, you must install `libssl-dev` package
+if it isn't installed already.
+
+```bash
+sudo apt-get update
+sudo apt-get install libssl-dev
+```
+
+[Read this issue for more details](https://github.com/sfackler/rust-openssl/issues/763)
 
 ## Deployment
 

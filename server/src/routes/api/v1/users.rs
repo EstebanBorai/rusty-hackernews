@@ -1,7 +1,8 @@
 use actix_web::http::header::AUTHORIZATION;
 use actix_web::http::StatusCode;
 use actix_web::web::{Data, Json};
-use actix_web::{HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, HttpResponseBuilder};
+use cookie::Cookie;
 use http_auth_basic::Credentials;
 
 use crate::error::Error;
@@ -56,10 +57,8 @@ pub async fn login(app_data: Data<AppData>, req: HttpRequest) -> HttpResponse {
             }
         };
 
-        let user = match app_data
-            .users_service
-            .lock()
-            .await
+        let user_service = app_data.users_service.lock().await;
+        let user = match user_service
             .validate(&credentials.user_id, &credentials.password)
             .await
         {
@@ -67,7 +66,21 @@ pub async fn login(app_data: Data<AppData>, req: HttpRequest) -> HttpResponse {
             Err(err) => return err.as_http_response(),
         };
 
-        return HttpResponse::Ok().json(common::User::from(user));
+        match user_service.sign_token(&user).await {
+            Ok((token, _expiration_time)) => {
+                let mut response = HttpResponseBuilder::new(StatusCode::OK);
+                let user_token_cookie = Cookie::build("fluxcap::user::token", token)
+                    .path("/")
+                    .secure(true)
+                    .http_only(true)
+                    .finish();
+
+                response.cookie(user_token_cookie);
+
+                return HttpResponse::Ok().json(common::User::from(user));
+            }
+            Err(err) => return err.as_http_response(),
+        }
     }
 
     Error::new(
